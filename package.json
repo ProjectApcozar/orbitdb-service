@@ -1,0 +1,24 @@
+{
+  "name": "orbitdb-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "OrbitDB Service",
+  "main": "src/service.js",
+  "scripts": {
+    "start": "node src/service.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Angel Paderne Cozar",
+  "license": "ISC",
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^14.1.0",
+    "@chainsafe/libp2p-yamux": "^7.0.1",
+    "@orbitdb/core": "2.2.0",
+    "blockstore-level": "2.0.1",
+    "cors": "2.8.5",
+    "express": "4.21.0",
+    "helia": "4.2.6",
+    "libp2p": "2.1.5"
+  }
+}
