@@ -1,4 +1,4 @@
 # orbitdb-service
 OrbitDB Service
 
-Start service: node index.js
+Start service: npm start
