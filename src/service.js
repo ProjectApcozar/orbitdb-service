@@ -43,6 +43,45 @@ app.get('/items', async (red, res) => {
     }
 });
 
+app.patch('/items/:key', async (req, res) => {
+    try {
+        const key = req.params.key;
+        const updates = req.body;
+        const existingValue = await db.get(key);
+
+        if(!existingValue) {
+            return res.status(404).send({ message: 'Item not found'});
+        }
+
+        const updatedValue = { ...existingValue, ...updates };
+        const hash = await db.put(key, updatedValue);
+
+        res.status(200).send({ message: 'Item updated', hash });
+        console.log(`Registro actualizado: { key: "${key}", value: "${JSON.stringify(updatedValue)}", hash: "${hash}" }`);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+app.delete('/items/:key', async (req, res) => {
+    try {
+        const key = req.params.key;
+        const existingValue = await db.get(key);
+
+        if (!existingValue) {
+            return res.status(404).send({ message: 'Item not found' });
+        }
+
+        await db.del(key);
+
+        res.status(200).send({ message: 'Item deleted'});
+        console.log(`Registro eliminado: { key: "${key}" }`);
+
+    } catch {
+        res.status(500).send({ error: error.message });
+    }
+})
+
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
