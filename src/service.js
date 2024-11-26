@@ -23,8 +23,8 @@ console.log('my-db address', db.address)
 app.post('/items', async (req, res) => {
     try{
         console.log(req.body);
-        const { key, nombre, edad } = req.body;
-        const value = { nombre, edad };
+        const { key, nombre, edad, telefono } = req.body;
+        const value = { nombre, edad, telefono };
 
         const hash = await db.put(key, value);
         res.status(201).send({ message: 'Item added' });
