@@ -34,10 +34,25 @@ app.post('/items', async (req, res) => {
     }
 });
 
-app.get('/items', async (red, res) => {
+app.get('/items', async (req, res) => {
     try {
         const items = await db.all();
         res.status(200).send(items);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+app.get("/items/:key", async (req, res) => {
+    try {
+        const key = req.params.key;
+        const item = await db.get(key);
+
+        if (!item) {
+            return res.status(404).send({ message: 'Item not found' });
+        }
+
+        res.status(200).send(item);
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
@@ -49,7 +64,7 @@ app.patch('/items/:key', async (req, res) => {
         const updates = req.body;
         const existingValue = await db.get(key);
 
-        if(!existingValue) {
+        if (!existingValue) {
             return res.status(404).send({ message: 'Item not found'});
         }
 
