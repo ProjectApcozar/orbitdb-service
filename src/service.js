@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import { LevelBlockstore } from 'blockstore-level';
 import { createLibp2p } from 'libp2p';
 import { createHelia } from 'helia';
@@ -11,12 +12,30 @@ const port = 3000;
 
 app.use(express.json());
 app.use(cors());
+dotenv.config();
 
 const blockstore = new LevelBlockstore('./ipfs/blocks');
 const libp2p = await createLibp2p(Libp2pOptions);
 const ipfs = await createHelia({ libp2p, blockstore });
-const orbitdb = await createOrbitDB({ ipfs });
-const db = await orbitdb.open('my-db', { type: 'keyvalue' });
+const orbitdb = await createOrbitDB({ipfs});
+const db_address = process.env.DB_ADDRESS;
+
+let db = null;
+
+if (db_address) {
+    db = await orbitdb.open(db_address, {
+        type: 'keyvalue'
+    });
+} else {
+    db = await orbitdb.open('my-db', { 
+        type: 'keyvalue',
+        create: true,
+        overwrite: false,
+        accessController: {
+            write: ['*']
+        }
+    });
+}
 
 console.log('my-db address', db.address)
 
@@ -100,3 +119,28 @@ app.delete('/items/:key', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
 });
+
+process.on('SIGINT', async () => {
+    console.log('Cerrando el servidor...');
+  
+    try {
+      // Cierra la base de datos
+      if (db) {
+        await db.close();
+        console.log('Base de datos cerrada correctamente.');
+      }
+  
+      // Cierra libp2p
+      if (libp2p) {
+        await libp2p.stop();
+        console.log('Libp2p detenido.');
+      }
+  
+      // Sal del proceso
+      process.exit(0);
+    } catch (error) {
+      console.error('Error al cerrar el servidor:', error);
+      process.exit(1);
+    }
+});
+  
