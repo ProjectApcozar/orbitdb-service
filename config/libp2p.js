@@ -21,4 +21,4 @@ export const Libp2pOptions = {
         identify: identify(),
         pubsub: gossipsub({ allowPublishToZeroTopicPeers: true })
     }
-}
+};

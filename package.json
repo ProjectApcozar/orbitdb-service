@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "OrbitDB Service",
-  "main": "src/service.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/service.js",
+    "start": "node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,8 +18,10 @@
     "blockstore-level": "2.0.1",
     "cors": "2.8.5",
     "dotenv": "^16.4.7",
+    "ethers": "^6.13.4",
     "express": "4.21.0",
     "helia": "4.2.6",
-    "libp2p": "2.1.5"
+    "libp2p": "2.1.5",
+    "secp256k1": "^3.6.2"
   }
 }
