@@ -98,6 +98,32 @@ export const healthHubABI = [
 				"type": "address"
 			}
 		],
+		"name": "removeDoctor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			}
+		],
+		"name": "removePatient",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "doctor",
+				"type": "address"
+			}
+		],
 		"name": "revokeDoctorAuthorization",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -141,4 +167,4 @@ export const healthHubABI = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
+];
