@@ -32,4 +32,8 @@ export async function setupContractEvents(patientDB, doctorDB, eventDB) {
     
         await eventDB.add({ event: 'AccessRevoked', patient, doctor });
     });
+
+    contract.on('AccessRequest', async (patient, doctor) => {
+        console.log(`AccessRequest: Patient ${patient} requested Doctor ${doctor}`);
+    });
 };
