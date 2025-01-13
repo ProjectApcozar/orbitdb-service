@@ -1,4 +1,4 @@
-export const healthHubABI = [
+export const healthhubABI = [
 	{
 		"inputs": [],
 		"name": "DoctorAlreadyRegistered",
@@ -54,6 +54,25 @@ export const healthHubABI = [
 				"type": "address"
 			}
 		],
+		"name": "AccessRequest",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "doctor",
+				"type": "address"
+			}
+		],
 		"name": "AccessRevoked",
 		"type": "event"
 	},
@@ -84,8 +103,21 @@ export const healthHubABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			}
+		],
 		"name": "registerPatient",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "registerPatientSelf",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -112,6 +144,19 @@ export const healthHubABI = [
 			}
 		],
 		"name": "removePatient",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			}
+		],
+		"name": "requestAccess",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -167,4 +212,4 @@ export const healthHubABI = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-];
+]
