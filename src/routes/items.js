@@ -6,8 +6,8 @@ export default function itemsRoutes(dataDB) {
     router.post('/', async (req, res) => {
         try{
             console.log(req.body);
-            const { key, nombre, edad, telefono } = req.body;
-            const value = { nombre, edad, telefono };
+            const { key, name, date_of_birth, phone_number } = req.body;
+            const value = { name, date_of_birth, phone_number };
     
             const hash = await dataDB.put(key, value);
             res.status(201).send({ message: 'Item added' });
