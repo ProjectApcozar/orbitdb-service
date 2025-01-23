@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getMedicalDataIntegrityContract } from '../contract/contract.js';
+import getMedicalDataIntegrityContract from '../utils/contract.js';
 
 export default function dataIntegrityRoutes() {
     const router = Router();
@@ -7,8 +7,15 @@ export default function dataIntegrityRoutes() {
 
     router.get('/', async (req, res) => {
         try {
-            const filter = contract.filters.DataHashUpdated(null, null);
+            const filter = contract.filters.DataHashUpdated();
             const logs = await contract.queryFilter(filter);
+
+            logs.forEach((log) => {
+                console.log(log.args.dataHash);
+                console.log(log.args.timestamp.toString());
+                console.log(log.args.owner);
+                console.log(log.args.updatedBy);
+            });
 
             res.status(200).send(logs);
         } catch (error) {

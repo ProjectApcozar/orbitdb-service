@@ -40,6 +40,18 @@ export const dataintegrityABI = [
 				"internalType": "uint256",
 				"name": "timestamp",
 				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "updatedBy",
+				"type": "address"
 			}
 		],
 		"name": "DataHashUpdated",
@@ -63,19 +75,6 @@ export const dataintegrityABI = [
 		],
 		"name": "OwnershipTransferred",
 		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "getDataHash",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -114,32 +113,23 @@ export const dataintegrityABI = [
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "_data",
+				"name": "_orbitCID",
 				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_updatedBy",
+				"type": "address"
 			}
 		],
 		"name": "updateDataHash",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_dataHash",
-				"type": "bytes32"
-			}
-		],
-		"name": "verifyDataIntegrity",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	}
 ]
