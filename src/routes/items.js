@@ -1,17 +1,20 @@
 import { Router } from 'express';
+import getMedicalDataIntegrityContract from '../utils/contract.js';
 
 export default function itemsRoutes(dataDB) {
     const router = Router();
+    const contract = getMedicalDataIntegrityContract();
 
     router.post('/', async (req, res) => {
         try{
-            console.log(req.body);
             const { key, name, date_of_birth, phone_number } = req.body;
             const value = { name, date_of_birth, phone_number };
     
-            const hash = await dataDB.put(key, value);
-            res.status(201).send({ message: 'Item added' });
-            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${hash}" }`);
+            const CID = await dataDB.put(key, value);
+            const tx = await contract.updateDataHash(CID, key, key);
+
+            res.status(201).send({ message: 'Item added' , CID});
+            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message })
         }
@@ -53,8 +56,10 @@ export default function itemsRoutes(dataDB) {
     
             const updatedValue = { ...existingValue, ...updates };
             const hash = await dataDB.put(key, updatedValue);
-    
-            res.status(200).send({ message: 'Item updated', hash });
+            const base32Hash = getBase32Hash(hash);
+            const tx = await contract.updateDataHash(base32Hash, key, key);
+
+            res.status(200).send({ message: 'Item updated', hash, tx });
             console.log(`Registro actualizado: { key: "${key}", value: "${JSON.stringify(updatedValue)}", hash: "${hash}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message });

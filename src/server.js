@@ -4,7 +4,7 @@ import dotenv from '../config/env.js';
 import { initOrbitDB } from '../db/orbitdb.js';
 import relationsRoutes from './routes/relations.js';
 import itemsRoutes from './routes/items.js';
-import { setupContractEvents } from './contract/events.js';
+import dataIntegrityRoutes from './routes/dataIntegrity.js';
 
 const app = express();
 const port = 3000;
@@ -22,8 +22,7 @@ console.log('EventDB',eventDB.address.toString());
 
 app.use('/relations', relationsRoutes(patientDB, doctorDB));
 app.use('/items', itemsRoutes(dataDB));
-
-setupContractEvents(patientDB, doctorDB, eventDB);
+app.use('/data-integrity', dataIntegrityRoutes())
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
