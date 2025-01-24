@@ -1,14 +1,18 @@
 import { Router } from 'express';
 import getMedicalDataIntegrityContract from '../utils/contract.js';
+import { encrypt, generateKeys } from '../utils/crypto.js';
 
-export default function itemsRoutes(dataDB) {
+export default function usersRoutes(dataDB) {
     const router = Router();
     const contract = getMedicalDataIntegrityContract();
 
     router.post('/', async (req, res) => {
-        try{
-            const { key, name, date_of_birth, phone_number } = req.body;
-            const value = { name, date_of_birth, phone_number };
+        try {
+            const { key, name, date_of_birth, phone_number, passphrase, password } = req.body;
+            
+            const { pubkey, privkey } = generateKeys(passphrase);
+            const securedPassword = encrypt(password, pubkey);
+            const value = { name, date_of_birth, phone_number, pubkey, privkey, securedPassword };
     
             const CID = await dataDB.put(key, value);
             const tx = await contract.updateDataHash(CID, key, key);
