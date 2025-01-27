@@ -1,4 +1,6 @@
+import e from 'cors';
 import { publicEncrypt, generateKeyPairSync } from 'crypto';
+import CryptoES from 'crypto-es';
 
 export function generateKeys(passphrase){
     const { publicKey, privateKey } = generateKeyPairSync('rsa', {
@@ -18,12 +20,12 @@ export function generateKeys(passphrase){
     return { pubkey: publicKey, privkey: privateKey };
 }
 
-export function encrypt(data, publicKey){
+export function encryptAsym(data, publicKey){
     const encryptedBuffer = publicEncrypt(publicKey, Buffer.from(data));
     return encryptedBuffer.toString('base64');
 }
 
-export function decrypt(data, privateKey, passphrase){
+export function decryptAsym(data, privateKey, passphrase){
     const buffer = Buffer.from(data, 'base64');
     const decryptedBuffer = privateDecrypt({
         key: privateKey,
@@ -33,5 +35,15 @@ export function decrypt(data, privateKey, passphrase){
     );
 
     return decryptedBuffer.toString('utf-8');
-    
+}
+
+export function encryptSym(data, key) {
+    const encryptedData = CryptoES.AES.encrypt(data, key).toString();
+    return encryptedData;
+}
+
+export function decryptSym(encryptedData, key) {
+    const decryptAsymBytes = CryptoES.AES.decrypt(encryptedData, key);
+    const decryptedData = decryptAsymBytes.toString(CryptoES.enc.Utf8);
+    return decryptedData;
 }

@@ -19,6 +19,7 @@
     "blockstore-level": "2.0.1",
     "bs58": "^6.0.0",
     "cors": "2.8.5",
+    "crypto-es": "^2.1.0",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.4",
     "express": "4.21.0",
