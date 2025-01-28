@@ -9,7 +9,7 @@ export default function usersRoutes(userDB) {
     router.post('/', async (req, res) => {
         try {
             const { key, name, date_of_birth, phone_number, user_password, cipher_key } = req.body;
-
+            console.log(cipher_key);
             const decryptedUserPassword = decryptSym(user_password, cipher_key);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
             const securedCipherKey = encryptAsym(cipher_key, pubkey);
@@ -40,8 +40,10 @@ export default function usersRoutes(userDB) {
             const key = req.params.key;
             const filter = contract.filters.PatientAdded(key);
             const logs = await contract.queryFilter(filter);
+            const user = await userDB.get(key);
 
-            const isPatient = logs && logs.length > 0;
+            const isPatient = !!(logs && logs.length > 0 && user);
+
             res.status(200).send({ isPatient });
         } catch (error) {
             res.status(500).send({ error: error.message });
@@ -53,8 +55,10 @@ export default function usersRoutes(userDB) {
             const key = req.params.key;
             const filter = contract.filters.DoctorAdded(key);
             const logs = await contract.queryFilter(filter);
+            const user = await userDB.get(key);
 
-            const isDoctor = logs && logs.length > 0;
+            const isDoctor = !!(logs && logs.length > 0 && user);
+
             res.status(200).send({ isDoctor });
         } catch (error) {
             res.status(500).send({ error: error.message });
@@ -69,8 +73,14 @@ export default function usersRoutes(userDB) {
             if (!item) {
                 return res.status(404).send({ message: 'Item not found' });
             }
+
+            const userDTO = {
+                name: item.name,
+                date_of_birth: item.date_of_birth,
+                phone_number: item.phone_number
+            };
     
-            res.status(200).send(item);
+            res.status(200).send(userDTO);
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
@@ -81,18 +91,18 @@ export default function usersRoutes(userDB) {
             const key = req.params.key;
             const updates = req.body;
             const existingValue = await userDB.get(key);
-    
+
             if (!existingValue) {
                 return res.status(404).send({ message: 'Item not found'});
             }
     
             const updatedValue = { ...existingValue, ...updates };
-            const hash = await userDB.put(key, updatedValue);
-            const base32Hash = getBase32Hash(hash);
-            const tx = await contract.updateDataHash(base32Hash, key, key);
+            
+            const CID = await userDB.put(key, updatedValue);
+            const tx = await contract.updateDataHash(CID, key, key);
 
-            res.status(200).send({ message: 'Item updated', hash, tx });
-            console.log(`Registro actualizado: { key: "${key}", value: "${JSON.stringify(updatedValue)}", hash: "${hash}" }`);
+            res.status(200).send({ message: 'Item updated', CID, tx });
+            console.log(`Registro actualizado: { key: "${key}", value: "${JSON.stringify(updatedValue)}", hash: "${CID}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
