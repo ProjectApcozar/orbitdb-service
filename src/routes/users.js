@@ -77,7 +77,7 @@ export default function usersRoutes(userDB) {
                 name: item.name,
                 date_of_birth: item.date_of_birth,
                 phone_number: item.phone_number,
-                dni: item.dni,
+                dni: item.dni || '',
                 hospital: item.hospital || '',
                 residence: item.residence || '',
                 email: item.email || '',

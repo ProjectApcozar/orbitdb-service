@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-export default function relationsRoutes(patientDB, doctorDB) {
+export default function permissionsRoutes(patientDB, doctorDB) {
     const router = Router();
 
     router.post('/', async (req, res) => {
