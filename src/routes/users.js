@@ -9,7 +9,6 @@ export default function usersRoutes(userDB) {
     router.post('/', async (req, res) => {
         try {
             const { key, name, date_of_birth, phone_number, user_password, cipher_key } = req.body;
-            console.log(cipher_key);
             const decryptedUserPassword = decryptSym(user_password, cipher_key);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
             const securedCipherKey = encryptAsym(cipher_key, pubkey);
@@ -77,7 +76,11 @@ export default function usersRoutes(userDB) {
             const userDTO = {
                 name: item.name,
                 date_of_birth: item.date_of_birth,
-                phone_number: item.phone_number
+                phone_number: item.phone_number,
+                dni: item.dni,
+                hospital: item.hospital || '',
+                residence: item.residence || '',
+                email: item.email || '',
             };
     
             res.status(200).send(userDTO);
@@ -102,7 +105,7 @@ export default function usersRoutes(userDB) {
             const tx = await contract.updateDataHash(CID, key, key);
 
             res.status(200).send({ message: 'Item updated', CID, tx });
-            console.log(`Registro actualizado: { key: "${key}", value: "${JSON.stringify(updatedValue)}", hash: "${CID}" }`);
+            console.log(`Registro actualizado: { key: "${key}", hash: "${CID}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
