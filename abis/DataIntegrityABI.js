@@ -1,4 +1,4 @@
-export const dataintegrityABI =[
+export const dataintegrityABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -249,6 +249,42 @@ export const dataintegrityABI =[
 	{
 		"inputs": [],
 		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patient",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_doctor",
+				"type": "address"
+			}
+		],
+		"name": "requestAccess",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patient",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_doctor",
+				"type": "address"
+			}
+		],
+		"name": "revokeAccess",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
