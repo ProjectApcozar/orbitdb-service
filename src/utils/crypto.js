@@ -1,5 +1,4 @@
-import e from 'cors';
-import { publicEncrypt, generateKeyPairSync } from 'crypto';
+import { publicEncrypt, privateDecrypt, generateKeyPairSync, createPrivateKey } from 'crypto';
 import CryptoES from 'crypto-es';
 
 export function generateKeys(passphrase){
@@ -27,9 +26,14 @@ export function encryptAsym(data, publicKey){
 
 export function decryptAsym(data, privateKey, passphrase){
     const buffer = Buffer.from(data, 'base64');
-    const decryptedBuffer = privateDecrypt({
+    const privateKeyObject = createPrivateKey({
         key: privateKey,
-        passphrase,
+        format: "pem",
+        passphrase: passphrase,
+    });
+
+    const decryptedBuffer = privateDecrypt({
+        key: privateKeyObject,
     },
         buffer
     );

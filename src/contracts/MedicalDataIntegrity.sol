@@ -32,4 +32,12 @@ contract MedicalDataIntegrity is Ownable {
     function grantAccess(address _patient, address _doctor) public onlyOwner() {
         emit AccessGranted(_patient, _doctor, block.timestamp);
     }
+
+    function revokeAccess(address _patient, address _doctor) public onlyOwner() {
+        emit AccessRevoked(_patient, _doctor, block.timestamp);
+    }
+
+    function requestAccess(address _patient, address _doctor) public onlyOwner() {
+        emit AccessRequested(_patient, _doctor, block.timestamp);
+    }
 }

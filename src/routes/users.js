@@ -9,6 +9,7 @@ export default function usersRoutes(userDB) {
     router.post('/', async (req, res) => {
         try {
             const { key, name, date_of_birth, phone_number, user_password, cipher_key } = req.body;
+            // COMENTADO PARA PRUEBAS, EL FE DEBE MANDAR LA USER PASSWORD CIFRADA
             const decryptedUserPassword = decryptSym(user_password, cipher_key);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
             const securedCipherKey = encryptAsym(cipher_key, pubkey);
