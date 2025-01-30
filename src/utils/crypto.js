@@ -1,7 +1,7 @@
 import { publicEncrypt, privateDecrypt, generateKeyPairSync, createPrivateKey } from 'crypto';
 import CryptoES from 'crypto-es';
 
-export function generateKeys(passphrase){
+export function generateKeys(userPassword){
     const { publicKey, privateKey } = generateKeyPairSync('rsa', {
         modulusLength: 4096,
         publicKeyEncoding: {
@@ -12,7 +12,7 @@ export function generateKeys(passphrase){
             type: 'pkcs8',
             format: 'pem',
             cipher: 'aes-256-cbc',
-            passphrase
+            userPassword
         }
     });
 
@@ -24,12 +24,12 @@ export function encryptAsym(data, publicKey){
     return encryptedBuffer.toString('base64');
 }
 
-export function decryptAsym(data, privateKey, passphrase){
+export function decryptAsym(data, privateKey, userPassword){
     const buffer = Buffer.from(data, 'base64');
     const privateKeyObject = createPrivateKey({
         key: privateKey,
         format: "pem",
-        passphrase: passphrase,
+        passphrase: userPassword,
     });
 
     const decryptedBuffer = privateDecrypt({

@@ -8,16 +8,19 @@ export default function usersRoutes(userDB) {
 
     router.post('/', async (req, res) => {
         try {
-            const { key, name, date_of_birth, phone_number, user_password, cipher_key } = req.body;
-            // COMENTADO PARA PRUEBAS, EL FE DEBE MANDAR LA USER PASSWORD CIFRADA
-            const decryptedUserPassword = decryptSym(user_password, cipher_key);
+            const { key, name, dateOfBirth, phoneNumer, encryptedUserPassword, cipherKey } = req.body;
+
+            // COMENTAR PARA PRUEBAS
+            const decryptedUserPassword = decryptSym(encryptedUserPassword, cipherKey);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
-            const securedCipherKey = encryptAsym(cipher_key, pubkey);
-            const value = { name, date_of_birth, phone_number, pubkey, privkey, securedCipherKey };
+
+            const encryptedCipherKey = encryptAsym(cipherKey, pubkey);
+            const value = { name, dateOfBirth, phoneNumer, pubkey, privkey, encryptedCipherKey };
     
             const CID = await userDB.put(key, value);
             const tx = await contract.updateDataHash(CID, key, key);
-            await contract.addPatient(key);
+            const tx_2 = await contract.addPatient(key);
+
             res.status(201).send({ message: 'Item added' , CID});
             console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
         } catch (error) {
@@ -76,12 +79,12 @@ export default function usersRoutes(userDB) {
 
             const userDTO = {
                 name: item.name,
-                date_of_birth: item.date_of_birth,
-                phone_number: item.phone_number,
-                dni: item.dni || '',
-                hospital: item.hospital || '',
-                residence: item.residence || '',
-                email: item.email || '',
+                dateOfBirth: item.dateOfBirth,
+                phoneNumer: item.phoneNumer,
+                dni: item.dni,
+                hospital: item.hospital,
+                residence: item.residence,
+                email: item.email,
             };
     
             res.status(200).send(userDTO);
