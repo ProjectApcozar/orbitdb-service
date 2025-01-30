@@ -13,14 +13,12 @@ app.use(express.json());
 app.use(cors());
 dotenv.config();
 
-const { patientDB, doctorDB, usersDB, eventDB } = await initOrbitDB();
+const { permissionsDB, usersDB } = await initOrbitDB();
 
-console.log('PatientDB',patientDB.address.toString());
-console.log('DoctorDB',doctorDB.address.toString());
-console.log('DataDB',usersDB.address.toString());
-console.log('EventDB',eventDB.address.toString());
+console.log('UserDB',usersDB.address.toString());
+console.log('PermissionsDB',permissionsDB.address.toString());
 
-app.use('/permissions', permissionsRoutes(patientDB, doctorDB));
+app.use('/permissions', permissionsRoutes(permissionsDB, usersDB));
 app.use('/users', usersRoutes(usersDB));
 app.use('/data-integrity', dataIntegrityRoutes())
 
