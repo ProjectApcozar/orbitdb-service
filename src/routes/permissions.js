@@ -7,9 +7,9 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
 
     router.post('/', async (req, res) => {
         try {
-            const { patient, doctor, user_password } = req.body;
+            const { patientId, doctorId, patientPassword } = req.body;
             
-            if (!patient || !doctor) {
+            if (!patientId || !doctorId || !patientPassword) {
                 return res.status(400).send({
                     message: 'Patient and doctor are required'
                 });
@@ -17,8 +17,8 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
 
             // TO DO: Decouple this logic into a business logic layer
             // First we get the id to check if the relation already exists
-            const id = generatePermissionsId(patient, doctor);
-            const exists = await permissionsDB.get(id);
+            const permissionId = generatePermissionsId(patientId, doctorId);
+            const exists = await permissionsDB.get(permissionId);
 
             if (exists) {
                 return res.status(400).send({
@@ -27,23 +27,25 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
             }
 
             // Then, If the relation does not exist, we proceed to add it
-            const patientData = await usersDB.get(patient);
-            const doctorData = await usersDB.get(doctor);
+            const patient = await usersDB.get(patientId);
+            const patientEncryptedCipherKey = patient.encryptedCipherKey;
+            const patientPrivKey = patientData.privkey;
+
+            const doctor = await usersDB.get(doctorId);
             const doctorPubKey = doctorData.pubkey;
-            const cipher_key = patientData.securedCipherKey;
-            const privKey = patientData.privkey;
-            const decryptedCipherKey = decryptAsym(cipher_key, privKey, user_password);
-            const encryptedCipherKey = encryptAsym(decryptedCipherKey, doctorPubKey);
+
+            const decryptedCipherKey = decryptAsym(patientEncryptedCipherKey, patientPrivKey, patientPassword);
+            const doctorEncryptedCipherKey = encryptAsym(decryptedCipherKey, doctorPubKey);
 
             const result = await permissionsDB.put({
                 _id: id,
                 patient,
                 doctor,
                 date: new Date().toISOString(),
-                encryptedCipherKey,
+                doctorEncryptedCipherKey,
             });
 
-            const tx = await contract.grantAccess(patient, doctor);
+            const tx = await contract.grantAccess(patientId, doctorId);
 
             if (result && tx) {
                 return res.status(201).send({ message: 'Relation added' });
@@ -85,15 +87,15 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
 
     router.delete('/', async(req, res) => {
         try {
-            const { patient, doctor } = req.body;
-            if (!patient || !doctor) {
+            const { patientId, doctorId } = req.body;
+            if (!patientId || !doctorId) {
                 return res.status(400).send({
                     message: 'Patient and Doctor are necessary'
                 });
             }
     
-            const id = generatePermissionsId(patient, doctor);
-            await permissionsDB.del(id);
+            const permissionId = generatePermissionsId(patientId, doctorId);
+            await permissionsDB.del(permissionId);
     
             res.status(200).send(({ message: 'Relation removed' }));
         } catch (error) {

@@ -17,10 +17,10 @@ export async function initOrbitDB() {
         write: ['*'],
     };
 
-    const USER_DB_ADDRESS = process.env.USERS_DB_ADDRESS || 'users';
+    const USERS_DB_ADDRESS = process.env.USERS_DB_ADDRESS || 'users';
     const PERMISSIONS_DB_ADDRESS = process.env.PERMISSIONS_DB_ADDRESS || 'permissions';
 
-    const usersDB = await orbitDB.open(USER_DB_ADDRESS, {
+    const usersDB = await orbitDB.open(USERS_DB_ADDRESS, {
         type: 'keyvalue',
         accessController,
     });
