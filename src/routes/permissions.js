@@ -1,9 +1,12 @@
 import { Router } from 'express';
-import { generatePermissionsId } from '../utils/utils.js';
+import { generatePermissionsId, selectFields } from '../utils/utils.js';
 import { encryptAsym, decryptAsym } from '../utils/crypto.js';
+import getMedicalDataIntegrityContract from '../utils/contract.js';
+import { doctorDTO } from '../utils/dtos.js';
 
 export default function permissionsRoutes(permissionsDB, usersDB) {
     const router = Router();
+    const contract = getMedicalDataIntegrityContract();
 
     router.post('/', async (req, res) => {
         try {
@@ -29,18 +32,18 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
             // Then, If the relation does not exist, we proceed to add it
             const patient = await usersDB.get(patientId);
             const patientEncryptedCipherKey = patient.encryptedCipherKey;
-            const patientPrivKey = patientData.privkey;
+            const patientPrivKey = patient.privkey;
 
             const doctor = await usersDB.get(doctorId);
-            const doctorPubKey = doctorData.pubkey;
+            const doctorPubKey = doctor.pubkey;
 
             const decryptedCipherKey = decryptAsym(patientEncryptedCipherKey, patientPrivKey, patientPassword);
             const doctorEncryptedCipherKey = encryptAsym(decryptedCipherKey, doctorPubKey);
 
             const result = await permissionsDB.put({
-                _id: id,
-                patient,
-                doctor,
+                _id: permissionId,
+                patientId,
+                doctorId,
                 date: new Date().toISOString(),
                 doctorEncryptedCipherKey,
             });
@@ -68,7 +71,15 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
     router.get('/patient/:patient', async (req, res) =>{
         try {
             const patientId = req.params.patient;
-            const patientPermissions = permissionsDB.query((doc) => doc.patient === patientId);
+            const patientPermissions = await Promise.all((await permissionsDB.query((doc) =>{
+                return doc.patientId === patientId
+            })).map(async (doc) => {
+                const doctor = await usersDB.get(doc.doctorId);
+                doctor.id = doc.doctorId;
+                doctor.permissionDate = doc.date;
+                return selectFields(doctor, doctorDTO)
+            }));
+
             res.status(200).send(patientPermissions);
         } catch (error) {
             res.status(500).send({ message: error.message });
@@ -78,7 +89,7 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
     router.get('/doctor/:doctor', async(req, res) => {
         try {
             const doctorId = req.params.doctor;
-            const doctorPermissions = permissionsDB.query((doc) => doc.doctor === doctorId);
+            const doctorPermissions = permissionsDB.query((doc) => doc.value.doctorId === doctorId);
             res.status(200).send(doctorPermissions);
         } catch (error) {
             res.status(500).send({ message: error.message });
@@ -96,7 +107,7 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
     
             const permissionId = generatePermissionsId(patientId, doctorId);
             await permissionsDB.del(permissionId);
-    
+
             res.status(200).send(({ message: 'Relation removed' }));
         } catch (error) {
             res.status(500).send({ message: error.message });
