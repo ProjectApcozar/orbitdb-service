@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import getMedicalDataIntegrityContract from '../utils/contract.js';
 import { decryptSym, encryptAsym, generateKeys } from '../utils/crypto.js';
+import { selectFields } from '../utils/utils.js';
+import { patientDTO } from '../utils/dtos.js';
 
 export default function usersRoutes(userDB) {
     const router = Router();
@@ -8,23 +10,35 @@ export default function usersRoutes(userDB) {
 
     router.post('/', async (req, res) => {
         try {
-            const { key, name, dateOfBirth, phoneNumer, encryptedUserPassword, cipherKey } = req.body;
+            const { key, name, dateOfBirth, phoneNumber, encryptedUserPassword, cipherKey } = req.body;
 
             // COMENTAR PARA PRUEBAS
             const decryptedUserPassword = decryptSym(encryptedUserPassword, cipherKey);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
-
             const encryptedCipherKey = encryptAsym(cipherKey, pubkey);
-            const value = { name, dateOfBirth, phoneNumer, pubkey, privkey, encryptedCipherKey };
-    
+            const value = { name, dateOfBirth, phoneNumber, pubkey, privkey, encryptedCipherKey };
             const CID = await userDB.put(key, value);
             const tx = await contract.updateDataHash(CID, key, key);
             const tx_2 = await contract.addPatient(key);
-
             res.status(201).send({ message: 'Item added' , CID});
             console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message })
+        }
+    });
+
+    router.post('/register-doctor', async (req, res) => {
+        try {
+            const { key, name, phoneNumber, hospital, type, doctorPassword } = req.body;
+            const { pubkey, privkey } = generateKeys(doctorPassword);
+            const value = { name, phoneNumber, hospital, type, pubkey, privkey };
+            const CID = await userDB.put(key, value);
+            const tx = await contract.updateDataHash(CID, key, key);
+            const tx2 = await contract.addDoctor(key);
+            res.status(201).send({ message: 'Item added', CID});
+            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
         }
     });
 
@@ -45,7 +59,7 @@ export default function usersRoutes(userDB) {
             const logs = await contract.queryFilter(filter);
             const user = await userDB.get(key);
 
-            const isPatient = !!(logs && logs.length > 0 && user);
+            const isPatient = !!((logs && logs.length > 0) && Boolean(user));
 
             res.status(200).send({ isPatient });
         } catch (error) {
@@ -77,17 +91,9 @@ export default function usersRoutes(userDB) {
                 return res.status(404).send({ message: 'Item not found' });
             }
 
-            const userDTO = {
-                name: item.name,
-                dateOfBirth: item.dateOfBirth,
-                phoneNumer: item.phoneNumer,
-                dni: item.dni,
-                hospital: item.hospital,
-                residence: item.residence,
-                email: item.email,
-            };
-    
-            res.status(200).send(userDTO);
+            const patient = selectFields(item, patientDTO);
+            console.log(patient);
+            res.status(200).send(patient);
         } catch (error) {
             res.status(500).send({ error: error.message });
         }

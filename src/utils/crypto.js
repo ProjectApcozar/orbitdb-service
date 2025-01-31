@@ -12,7 +12,7 @@ export function generateKeys(userPassword){
             type: 'pkcs8',
             format: 'pem',
             cipher: 'aes-256-cbc',
-            userPassword
+            passphrase: userPassword
         }
     });
 
