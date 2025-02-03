@@ -68,11 +68,11 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
         }
     });
 
-    router.get('/patient/:patient', async (req, res) =>{
+    router.get('/patient/:patientId', async (req, res) =>{
         try {
-            const patientId = req.params.patient;
+            const patientId = req.params.patientId;
             const patientPermissions = await Promise.all((await permissionsDB.query((doc) =>{
-                return doc.patientId === patientId
+                return doc.patientId === patientId;
             })).map(async (doc) => {
                 const doctor = await usersDB.get(doc.doctorId);
                 doctor.id = doc.doctorId;
@@ -86,9 +86,9 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
         }
     });
 
-    router.get('/doctor/:doctor', async(req, res) => {
+    router.get('/doctor/:doctorId', async(req, res) => {
         try {
-            const doctorId = req.params.doctor;
+            const doctorId = req.params.doctorId;
             const doctorPermissions = permissionsDB.query((doc) => doc.value.doctorId === doctorId);
             res.status(200).send(doctorPermissions);
         } catch (error) {

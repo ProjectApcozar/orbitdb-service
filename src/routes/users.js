@@ -92,7 +92,6 @@ export default function usersRoutes(userDB) {
             }
 
             const patient = selectFields(item, patientDTO);
-            console.log(patient);
             res.status(200).send(patient);
         } catch (error) {
             res.status(500).send({ error: error.message });
