@@ -9,3 +9,15 @@ export const patientDTO = [
     "email",
     "permissionDate",
 ];
+
+export const medicationDTO = [
+    "patientId",
+    "doctorId",
+    "name",
+    "dosage",
+    "frequency",
+    "startDate",
+    "duration",
+    "notes",
+    "createdAt",
+]
