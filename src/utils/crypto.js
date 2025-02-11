@@ -47,7 +47,22 @@ export function encryptSym(data, key) {
 }
 
 export function decryptSym(encryptedData, key) {
-    const decryptAsymBytes = CryptoES.AES.decrypt(encryptedData, key);
-    const decryptedData = decryptAsymBytes.toString(CryptoES.enc.Utf8);
+    const decryptSymBytes = CryptoES.AES.decrypt(encryptedData, key);
+    const decryptedData = decryptSymBytes.toString(CryptoES.enc.Utf8);
+    return decryptedData;
+}
+
+export function decryptData(encryptedData, decryptKey) {
+    const decryptedData = [];
+
+    for (const [key, value] of Object.entries(encryptedData)) {
+        try {
+            if (typeof value === 'string') {
+                decryptedData[key] = decryptSym(value, decryptKey);
+            }
+        } catch (error) {
+            console.log(key, 'in error', error);
+        }
+    }
     return decryptedData;
 }

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { generatePermissionsId, selectFields } from '../utils/utils.js';
-import { encryptAsym, decryptAsym } from '../utils/crypto.js';
+import { encryptAsym, decryptAsym, decryptData } from '../utils/crypto.js';
 import getMedicalDataIntegrityContract from '../utils/contract.js';
-import { doctorDTO } from '../utils/dtos.js';
+import { doctorDTO, patientPermissionDTO, patientDTO } from '../utils/dtos.js';
 
 export default function permissionsRoutes(permissionsDB, usersDB) {
     const router = Router();
@@ -71,7 +71,7 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
     router.get('/patient/:patientId', async (req, res) =>{
         try {
             const patientId = req.params.patientId;
-            const patientPermissions = await Promise.all((await permissionsDB.query((doc) =>{
+            const patientPermissions = await Promise.all((await permissionsDB.query((doc) => {
                 return doc.patientId === patientId;
             })).map(async (doc) => {
                 const doctor = await usersDB.get(doc.doctorId);
@@ -86,10 +86,23 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
         }
     });
 
-    router.get('/doctor/:doctorId', async(req, res) => {
+    router.post('/doctor/:doctorId', async(req, res) => {
         try {
             const doctorId = req.params.doctorId;
-            const doctorPermissions = permissionsDB.query((doc) => doc.value.doctorId === doctorId);
+            const { doctorPassword } = req.body;
+
+            const doctor = await usersDB.get(doctorId);
+
+            const doctorPermissions = await Promise.all((await permissionsDB.query((doc) => {
+                return doc.doctorId == doctorId
+            })).map(async (doc) => {
+                const patient = await usersDB.get(doc.patientId);
+                const doctorEncryptedCipherKey = doc.doctorEncryptedCipherKey;
+                const doctorDecryptedCipherKey = decryptAsym(doctorEncryptedCipherKey, doctor.privkey, doctorPassword);
+                const decryptedPatient = decryptData(selectFields(patient, patientDTO), doctorDecryptedCipherKey);
+                return selectFields(decryptedPatient, patientPermissionDTO);
+            }));
+
             res.status(200).send(doctorPermissions);
         } catch (error) {
             res.status(500).send({ message: error.message });
