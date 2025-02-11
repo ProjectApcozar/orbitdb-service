@@ -1,5 +1,6 @@
 export const doctorDTO = ["id","name", "type", "hospital", "phoneNumber"];
 export const patientDTO = [
+    "id",
     "name", 
     "dateOfBirth", 
     "phoneNumber", 
@@ -8,6 +9,20 @@ export const patientDTO = [
     "residence",
     "email",
     "permissionDate",
+];
+
+export const patientPermissionDTO = [
+    "id",
+    "name", 
+    "dateOfBirth", 
+    "phoneNumber", 
+    "dni", 
+    "hospital",
+    "residence",
+    "email",
+    "permissionDate",
+    "doctorEncryptedPrivateKey",
+    "encryptedCipherKey",
 ];
 
 export const medicationDTO = [

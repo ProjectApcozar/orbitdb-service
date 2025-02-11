@@ -42,6 +42,17 @@ export default function usersRoutes(userDB) {
         }
     });
 
+    router.post('/add-doctor', async (req, res) => {
+        try {
+            const { key } = req.body;
+            const txx = await contract.addDoctor(key);
+            res.status(201).send({ message: 'Item added', CID});
+            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    });
+
     router.get('/', async (req, res) => {
         try {
             const items = await userDB.all();
@@ -74,9 +85,23 @@ export default function usersRoutes(userDB) {
             const logs = await contract.queryFilter(filter);
             const user = await userDB.get(key);
 
-            const isDoctor = !!(logs && logs.length > 0 && user);
+            const isDoctor = !!(logs && logs.length > 0 && Boolean(user));
 
             res.status(200).send({ isDoctor });
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    });
+
+    router.get('/is-doctor-enabled/:key', async (req, res) => {
+        try {
+            const key = req.params.key;
+            const filter = contract.filters.DoctorAdded(key);
+            const logs = await contract.queryFilter(filter);
+
+            const isDoctorEnabled = !!(logs && logs.length > 0);
+
+            res.status(200).send({ isDoctorEnabled });
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
