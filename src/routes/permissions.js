@@ -18,8 +18,6 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
                 });
             }
 
-            // TO DO: Decouple this logic into a business logic layer
-            // First we get the id to check if the relation already exists
             const permissionId = generatePermissionsId(patientId, doctorId);
             const exists = await permissionsDB.get(permissionId);
 
@@ -29,7 +27,6 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
                 });
             }
 
-            // Then, If the relation does not exist, we proceed to add it
             const patient = await usersDB.get(patientId);
             const patientEncryptedCipherKey = patient.encryptedCipherKey;
             const patientPrivKey = patient.privkey;
@@ -57,6 +54,51 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
         } catch (error) {
             res.status(500).send({ message: error.message });
         };
+    });
+
+    router.post('/request-access', async (req, res) => {
+        try {
+            const { patientId, doctorId } = req.body;
+            
+            if (!patientId || !doctorId) {
+                return res.status(400).send({
+                    message: 'Patient and doctor are required'
+                });
+            }
+
+            const tx = await contract.requestAccess(patientId, doctorId);
+            console.log(`Nuevo registro añadido: { key: "${patientId}", hash: "${tx}" }`);
+            res.status(201).send({ message: 'Item added', tx});
+        } catch (error) {
+            res.status(500).send({ message: error.message })
+        }
+    });
+
+    router.get('/access-requests/:patientId', async (req, res) => {
+        try {
+            const patientId = req.params.patientId;
+            const filterRequested  = contract.filters.AccessRequested(patientId);
+            const filterGranted  = contract.filters.AccesGranted(patientId);
+
+            const [logsRequested, logsGranted] = await Promise.all([
+                contract.queryFilter(filterRequested),
+                contract.queryFilter(filterGranted)
+            ]);
+
+            const grantedDoctors = new Set(logsGranted.map(log => log.args.doctor.toLowerCase()));
+            const pendingRequests = logsRequested.filter(log => !grantedDoctors.has(log.args.doctor.toLowerCase()));
+
+            const response = pendingRequests.map(log => ({
+                patient: log.args.patient,
+                doctor: log.args.doctor,
+                timestamp: log.args.timestamp.toNumber()
+            }));
+
+            res.status(200).json(response);
+        } catch (error) {
+            console.error('Error al obtener las solicitudes de acceso:', error);
+            res.status(500).json({ error: 'Error al obtener las solicitudes de acceso' });
+        }
     });
 
     router.get('/', async (req, res) => {

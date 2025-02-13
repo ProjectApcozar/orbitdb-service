@@ -29,8 +29,8 @@ export default function usersRoutes(userDB) {
 
     router.post('/register-doctor', async (req, res) => {
         try {
-            const { key, name, phoneNumber, hospital, type, doctorPassword } = req.body;
-            const { pubkey, privkey } = generateKeys(doctorPassword);
+            const { key, name, phoneNumber, hospital, type, password } = req.body;
+            const { pubkey, privkey } = generateKeys(password);
             const value = { name, phoneNumber, hospital, type, pubkey, privkey };
             const CID = await userDB.put(key, value);
             const tx = await contract.updateDataHash(CID, key, key);
@@ -45,9 +45,9 @@ export default function usersRoutes(userDB) {
     router.post('/add-doctor', async (req, res) => {
         try {
             const { key } = req.body;
-            const txx = await contract.addDoctor(key);
-            res.status(201).send({ message: 'Item added', CID});
-            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
+            const tx = await contract.addDoctor(key);
+            res.status(201).send({ message: 'Item added', tx});
+            console.log(`Nuevo registro añadido: { key: "${key}", hash: "${tx}" }`);
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
