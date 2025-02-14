@@ -142,9 +142,11 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
                 const doctorEncryptedCipherKey = doc.doctorEncryptedCipherKey;
                 const doctorDecryptedCipherKey = decryptAsym(doctorEncryptedCipherKey, doctor.privkey, doctorPassword);
                 const decryptedPatient = decryptData(selectFields(patient, patientDTO), doctorDecryptedCipherKey);
+                decryptedPatient.patientId = doc.patientId;
                 return selectFields(decryptedPatient, patientPermissionDTO);
             }));
 
+            console.log(doctorPermissions);
             res.status(200).send(doctorPermissions);
         } catch (error) {
             res.status(500).send({ message: error.message });
@@ -162,6 +164,7 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
     
             const permissionId = generatePermissionsId(patientId, doctorId);
             await permissionsDB.del(permissionId);
+            await contract.revokeAccess(patientId, doctorId);
 
             res.status(200).send(({ message: 'Relation removed' }));
         } catch (error) {
