@@ -13,6 +13,7 @@ export const patientDTO = [
 
 export const patientPermissionDTO = [
     "id",
+    "patientId",
     "name", 
     "dateOfBirth", 
     "phoneNumber", 

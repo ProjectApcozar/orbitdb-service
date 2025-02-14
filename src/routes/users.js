@@ -12,16 +12,15 @@ export default function usersRoutes(userDB) {
         try {
             const { key, name, dateOfBirth, phoneNumber, encryptedUserPassword, cipherKey } = req.body;
 
-            // COMENTAR PARA PRUEBAS
             const decryptedUserPassword = decryptSym(encryptedUserPassword, cipherKey);
             const { pubkey, privkey } = generateKeys(decryptedUserPassword);
             const encryptedCipherKey = encryptAsym(cipherKey, pubkey);
             const value = { name, dateOfBirth, phoneNumber, pubkey, privkey, encryptedCipherKey };
             const CID = await userDB.put(key, value);
-            const tx = await contract.updateDataHash(CID, key, key);
-            const tx_2 = await contract.addPatient(key);
+            await contract.updateDataHash(CID, key, key);
+            await contract.addPatient(key);
             res.status(201).send({ message: 'Item added' , CID});
-            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}", hash: "${tx}" }`);
+            console.log(`Nuevo registro añadido: { key: "${key}", value: "${value}",, }`);
         } catch (error) {
             res.status(500).send({ error: error.message })
         }
