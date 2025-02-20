@@ -24,6 +24,7 @@ export const patientPermissionDTO = [
     "permissionDate",
     "doctorEncryptedPrivateKey",
     "encryptedCipherKey",
+    "doctorDecryptedCipherKey",
 ];
 
 export const medicationDTO = [
