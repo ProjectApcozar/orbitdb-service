@@ -143,6 +143,7 @@ export default function permissionsRoutes(permissionsDB, usersDB) {
                 const doctorDecryptedCipherKey = decryptAsym(doctorEncryptedCipherKey, doctor.privkey, doctorPassword);
                 const decryptedPatient = decryptData(selectFields(patient, patientDTO), doctorDecryptedCipherKey);
                 decryptedPatient.patientId = doc.patientId;
+                decryptedPatient.doctorDecryptedCipherKey = doctorDecryptedCipherKey;
                 return selectFields(decryptedPatient, patientPermissionDTO);
             }));
 
