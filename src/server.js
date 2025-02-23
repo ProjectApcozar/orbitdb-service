@@ -15,12 +15,13 @@ app.use(express.json());
 app.use(cors());
 dotenv.config();
 
-const { permissionsDB, usersDB, medicationsDB, vaccinesDB } = await initOrbitDB();
+const { documentsDB, permissionsDB, usersDB, medicationsDB, vaccinesDB } = await initOrbitDB();
 
 console.log('UserDB',usersDB.address.toString());
 console.log('PermissionsDB',permissionsDB.address.toString());
 console.log('VaccinesDB', vaccinesDB.address.toString());
 console.log('MedicationsDB', medicationsDB.address.toString());
+console.log('DocumentsDB', documentsDB.address.toString());
 
 app.use('/permissions', permissionsRoutes(permissionsDB, usersDB));
 app.use('/users', usersRoutes(usersDB));
