@@ -21,6 +21,7 @@ export async function initOrbitDB() {
     const PERMISSIONS_DB_ADDRESS = process.env.PERMISSIONS_DB_ADDRESS || 'permissions';
     const VACCINES_DB_ADDRESS = process.env.VACCINES_DB_ADDRESS || 'vaccines';
     const MEDICATIONS_DB_ADDRESS = process.env.MEDICATIONS_DB_ADDRESS || 'medications';
+    const DOCUMENTS_DB_ADDRESS = process.env.DOCUMENTS_DB_ADDRESS || 'vaccines';
 
     const usersDB = await orbitDB.open(USERS_DB_ADDRESS, {
         type: 'keyvalue',
@@ -42,10 +43,16 @@ export async function initOrbitDB() {
         accessController,
     });
 
+    const documentsDB = await orbitDB.open(DOCUMENTS_DB_ADDRESS, {
+        type: 'documents',
+        accessController,
+    });
+
     return {
         usersDB,
         medicationsDB,
         permissionsDB,
         vaccinesDB,
+        documentsDB,
     };
 }
